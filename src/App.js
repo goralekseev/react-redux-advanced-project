@@ -4,8 +4,9 @@ import {useSelector, useDispatch} from 'react-redux';
 import Cart from './components/Cart/Cart';
 import Layout from './components/Layout/Layout';
 import Products from './components/Shop/Products';
-import { uiActions } from './store/ui-slice';
+//import { uiActions } from './store/ui-slice';
 import Notification from './components/UI/Notification';
+import { sendCartData, fetchCartData } from './store/cart-actions';
 
 let isInitial = true;
 
@@ -15,6 +16,24 @@ function App() {
   const cart = useSelector(state => state.cart);
   const notification = useSelector(state => state.ui.notification)
 
+  useEffect(() =>{
+    dispatch(fetchCartData())
+  }, [dispatch]);
+
+  useEffect(()=>{
+    if (isInitial){
+      isInitial = false;
+      return
+    }
+
+    if (cart.changed) {
+      dispatch(sendCartData(cart))
+    }
+
+    dispatch(sendCartData(cart))
+  },[cart, dispatch]);
+
+ /* useEffect option before Action Creator Thunk
   useEffect(() =>{
     const sendCartData = async () =>{
       dispatch(
@@ -32,8 +51,6 @@ function App() {
       if(!response.ok){
         throw new Error('Sending cart data failed')
       }
-
-      const responseData = await response.json();
 
       dispatch(
         uiActions.showNotification({
@@ -58,6 +75,7 @@ function App() {
       );
     })
   }, [cart, dispatch]);
+*/
 
   return (
     <Fragment>
